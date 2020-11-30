@@ -4,12 +4,12 @@ const express = require('express')
 const app = express()
 const port = process.env.PORT || 5000
 
-var server = http.createServer(app)
+const server = http.createServer(app)
 server.listen(port)
 
-var wss = new WebSocketServer({
-  server: server
-})
+console.log(`server listening on port ${port}`)
+
+const wss = new WebSocketServer({ server })
 
 const clients = []
 let clientID = 1
@@ -17,18 +17,19 @@ let clientID = 1
 wss.on('connection', function(ws) {
   const id = clientID
 
-  clients.push({ id, ws })
-
-  console.log('websocket connection open:', clientID)
-
   clientID++
 
+  clients.push({ id, ws })
+
+  console.log(`websocket connection opened (${id})`)
+
   ws.on('message', function(message) {
-    console.log('websocket message received', message)
+    console.log(`websocket message received (${id}):`, message)
   })
 
   ws.on('close', function() {
-    console.log('websocket connection close')
+    console.log(`websocket connection closed (${id})`)
+
     const clientIdx = clients.findIndex((client) => client.id === id)
     clients.splice(clientIdx, 1)
   })
@@ -37,25 +38,30 @@ wss.on('connection', function(ws) {
 const allowedCommands = ['open', 'close']
 
 app.get('/', (req, res) => {
-  const { cmd, target } = req.query
-  const targetNumber = parseInt(target)
+  const { cmd, target: targetString } = req.query
+  const target = parseInt(targetString)
 
   if (!allowedCommands.includes(cmd)) {
     res.sendStatus(400)
     return
   }
-  if (Number.isNaN(targetNumber)) {
+
+  if (Number.isNaN(target)) {
     res.sendStatus(400)
     return
   }
-  if (targetNumber < 1 || targetNumber > 16) {
+
+  if (target < 1 || target > 16) {
     res.sendStatus(400)
     return
   }
+
+  const event = { cmd, target }
 
   clients.forEach((client) => {
-    client.ws.emit('message', JSON.stringify({ cmd, target }))
+    client.ws.send(JSON.stringify(event))
   })
 
-  res.sendStatus(200)
+  res.status(200)
+  res.send(event)
 })
