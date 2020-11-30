@@ -11,12 +11,17 @@ var wss = new WebSocketServer({
   server: server
 })
 
-wss.on('connection', function(ws) {
-  var id = setInterval(function() {
-    ws.send(JSON.stringify(new Date()), function() {  })
-  }, 1000)
+const clients = []
+let clientID = 1
 
-  console.log('websocket connection open')
+wss.on('connection', function(ws) {
+  const id = clientID
+
+  clients.push({ id, ws })
+
+  console.log('websocket connection open:', clientID)
+
+  clientID++
 
   ws.on('message', function(message) {
     console.log('websocket message received', message)
@@ -24,12 +29,33 @@ wss.on('connection', function(ws) {
 
   ws.on('close', function() {
     console.log('websocket connection close')
-    clearInterval(id)
+    const clientIdx = clients.findIndex((client) => client.id === id)
+    clients.splice(clientIdx, 1)
   })
 })
 
+const allowedCommands = ['open', 'close']
+
 app.get('/', (req, res) => {
-  res.json({
-    data: 'Deu certo!'
+  const { cmd, target } = req.query
+  const targetNumber = parseInt(target)
+
+  if (!allowedCommands.includes(cmd)) {
+    res.sendStatus(400)
+    return
+  }
+  if (Number.isNaN(targetNumber)) {
+    res.sendStatus(400)
+    return
+  }
+  if (targetNumber < 1 || targetNumber > 16) {
+    res.sendStatus(400)
+    return
+  }
+
+  clients.forEach((client) => {
+    client.ws.emit('message', JSON.stringify({ cmd, target }))
   })
+
+  res.sendStatus(200)
 })
