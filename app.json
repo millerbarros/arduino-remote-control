@@ -1,0 +1,8 @@
+{
+  "name": "Arduino websocket",
+  "description": "Proof of concept for websocket connection with an arduino device",
+  "repository": "https://github.com/millerbarros/arduino-remote-control",
+  "logo": "https://cdn.rawgit.com/heroku/node-js-getting-started/main/public/node.svg",
+  "keywords": ["node", "express", "heroku"],
+  "image": "heroku/nodejs"
+}

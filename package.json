@@ -1,0 +1,26 @@
+{
+  "name": "arduino-remote-control",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "http": "0.0.1-security",
+    "socket.io": "^3.0.3",
+    "ws": "^7.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/millerbarros/arduino-remote-control.git"
+  },
+  "author": "Miller Barros",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/millerbarros/arduino-websocket/issues"
+  },
+  "homepage": "https://github.com/millerbarros/arduino-websocket#readme"
+}
